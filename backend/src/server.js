@@ -39,24 +39,26 @@ app.post('/api/manual_callback', (req, res) => {
   return res.json({ success: true, simulated: true });
 });
 
-// --- CORS Middleware ---
+// --- Robust CORS Middleware ---
+const allowedOrigins = [
+  'http://localhost:1001',
+  'https://instantmkopo.vercel.app',
+  'https://extra-1-5rvl.onrender.com'
+];
 app.use((req, res, next) => {
-	const allowedOrigins = [
-		'http://localhost:1001',
-		'https://instantmkopo.vercel.app/',
-		'https://extra-1-5rvl.onrender.com'
-	];
-	const origin = req.headers.origin;
-	if (allowedOrigins.includes(origin)) {
-		res.setHeader('Access-Control-Allow-Origin', origin);
-	}
-	res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-	res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
-	res.setHeader('Access-Control-Allow-Credentials', 'true');
-	if (req.method === 'OPTIONS') {
-		return res.sendStatus(204);
-	}
-	next();
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Vary', 'Origin');
+  }
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  if (req.method === 'OPTIONS') {
+    res.status(204).end();
+    return;
+  }
+  next();
 });
 
 app.get('/api/health', (req, res) => res.send('ok'));
